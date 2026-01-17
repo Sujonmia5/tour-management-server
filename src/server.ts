@@ -2,20 +2,26 @@
 /* eslint-disable no-undef */
 import { Server } from "http";
 import app from "./app";
+import mongoose from "mongoose";
+import { config } from "./app/config/config";
 
 let server: Server;
 
 async function main() {
   try {
+    await mongoose.connect(config.DATABASE_URL);
+
     // Start server
-    server = app.listen(5000, () => {
-      console.log(`Server is running on port: 5000`);
+    server = app.listen(config.PORT, () => {
+      console.log(`Server is running on port: ${config.PORT}`);
     });
   } catch (error) {
     console.log(error);
   }
 }
-main();
+(async () => {
+  await main();
+})();
 
 process.on("SIGINT", () => {
   console.log("SIGINR Received, Shutting Down gracefully..");
