@@ -12,15 +12,17 @@ const loadConfig = (): IConfig => {
     "JWT_SECRET",
     "JWT_EXPIRES_IN",
     "EMAIL_SERVICE",
+    "PASSWORD_HASH_SALT_NUMBER",
   ];
   envVariables.forEach((variable) => {
     if (!process.env[variable]) {
+      // eslint-disable-next-line no-console
       console.warn(
         `Warning: ${variable} is not defined in environment variables.`,
       );
     }
   });
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  //  eslint-disable-next-line @typescript-eslint/no-explicit-any
   return envVariables.reduce((configObj: any, variable) => {
     configObj[variable] = process.env[variable];
     return configObj;
