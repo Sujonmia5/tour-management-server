@@ -16,12 +16,8 @@ export type TRefreshTokenRequest = {
 };
 
 export type TAuthResponse = {
-  accessToken: string;
-  refreshToken: string;
-  user: {
-    _id: string;
-    name: string;
-    email: string;
-    role: string;
+  data: {
+    accessToken: string;
+    refreshToken: string;
   };
 };

@@ -1,8 +1,21 @@
 import mongoose, { Schema } from "mongoose";
 import { USER_ROLES } from "./user.constant";
-import { TUser } from "./user.interface";
+import { IUserModels, TUser } from "./user.interface";
 
-const userSchema = new Schema<TUser>(
+const authsSchema = new Schema(
+  {
+    provider: {
+      type: String,
+      required: true,
+    },
+    providerId: {
+      type: String,
+      required: true,
+    },
+  },
+  { _id: false, versionKey: false },
+);
+const userSchema = new Schema<TUser, IUserModels>(
   {
     name: {
       type: String,
@@ -39,19 +52,10 @@ const userSchema = new Schema<TUser>(
       type: Boolean,
       default: false,
     },
-    auths: [
-      {
-        provider: {
-          type: String,
-          enum: ["local", "google"],
-          required: true,
-        },
-        providerId: {
-          type: String,
-          required: true,
-        },
-      },
-    ],
+    auths: [authsSchema],
+    passwordChangeAt: {
+      type: Date,
+    },
     isPasswordChanged: {
       type: Boolean,
       default: false,
@@ -67,7 +71,30 @@ const userSchema = new Schema<TUser>(
   {
     timestamps: true,
     versionKey: false,
+    toObject: {
+      transform(_doc, ret) {
+        delete ret.password;
+        return ret;
+      },
+    },
+    toJSON: {
+      transform(_doc, ret) {
+        delete ret.password;
+        return ret;
+      },
+    },
   },
 );
 
-export const UserModel = mongoose.model<TUser>("User", userSchema);
+userSchema.statics["isUserExist"] = async function (
+  email: string,
+  isDataNeed: boolean,
+) {
+  const user = await this.findOne({ email, isDeleted: { $ne: true } });
+  if (isDataNeed) {
+    return user;
+  }
+  return user ? true : false;
+};
+
+export const UserModel = mongoose.model<TUser, IUserModels>("User", userSchema);

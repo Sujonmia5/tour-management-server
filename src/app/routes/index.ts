@@ -1,9 +1,6 @@
 import express, { Router } from "express";
 import { UserRoute } from "../modules/user/user.route";
-// import { TourRoute } from "../modules/tour/tour.route";
-// import { PaymentRoute } from "../modules/payment/payment.route";
-// import { BookingRoute } from "../modules/booking/booking.route";
-// import { AuthRoute } from "../modules/auth/auth.route";
+import { AuthRoute } from "../modules/auth/auth.route";
 
 interface IRoute {
   path: string;
@@ -13,10 +10,10 @@ interface IRoute {
 export const ApiRouter = express.Router();
 
 const moduleRoutes: IRoute[] = [
-  // {
-  //   path: "/auth",
-  //   route: AuthRoute,
-  // },
+  {
+    path: "/auth",
+    route: AuthRoute,
+  },
   {
     path: "/users",
     route: UserRoute,

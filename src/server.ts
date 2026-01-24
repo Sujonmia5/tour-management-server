@@ -23,23 +23,23 @@ async function main() {
   await main();
 })();
 
-process.on("SIGINT", () => {
-  console.log("SIGINR Received, Shutting Down gracefully..");
-  if (server) {
-    server.close(() => {
-      console.log("server close");
-    });
-  }
-});
+// process.on("SIGINT", () => {
+//   console.log("SIGINR Received, Shutting Down gracefully..");
+//   if (server) {
+//     server.close(() => {
+//       console.log("server close");
+//     });
+//   }
+// });
 
-process.on("SIGTERM", () => {
-  console.log("SIGTERM Received, Shutting Down gracefully..");
-  if (server) {
-    server.close(() => {
-      console.log("server close");
-    });
-  }
-});
+// process.on("SIGTERM", () => {
+//   console.log("SIGTERM Received, Shutting Down gracefully..");
+//   if (server) {
+//     server.close(() => {
+//       console.log("server close");
+//     });
+//   }
+// });
 
 process.on("unhandledRejection", () => {
   console.log("Catch UnhandledRejection Shutting down gracefully...");

@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+import mongoose from "mongoose";
 import { USER_ROLES } from "./user.constant";
 
 export type TAuthProvider = "local" | "google";
@@ -21,9 +23,23 @@ export type TUser = {
       providerId: string;
     },
   ];
+  passwordChangeAt?: Date;
   isPasswordChanged: boolean;
   isPasswordSet: boolean;
   avatarUrl?: string;
   createdAt: string;
   updatedAt: string;
 };
+
+export type TUserPasswordUpdatePayload = {
+  newPassword: string;
+  oldPassword?: string;
+};
+
+// user Methods
+export interface IUserModels extends mongoose.Model<TUser> {
+  isUserExist(
+    email: string,
+    isDataNeed: boolean,
+  ): Promise<Pick<TUser, "_id" | "isPasswordSet"> | boolean>;
+}

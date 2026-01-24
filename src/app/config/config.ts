@@ -1,18 +1,21 @@
 /* eslint-disable no-undef */
 import dotevn from "dotenv";
 import path from "path";
-import { IConfig } from "../types/config";
+import { IConfig } from "../interface/config";
 
 dotevn.config({ path: path.join(process.cwd(), ".env") });
 
 const loadConfig = (): IConfig => {
   const envVariables: string[] = [
+    "NODE_ENV",
     "PORT",
     "DATABASE_URL",
-    "JWT_SECRET",
-    "JWT_EXPIRES_IN",
-    "EMAIL_SERVICE",
     "PASSWORD_HASH_SALT_NUMBER",
+    "SESSION_SECRET",
+    "JWT_ACCESSTOKEN_SECRET",
+    "JWT_ACCESSTOKEN_EXPIRES_IN",
+    "JWT_REFRESHTOKEN_SECRET",
+    "JWT_REFRESHTOKEN_EXPIRES_IN",
   ];
   envVariables.forEach((variable) => {
     if (!process.env[variable]) {

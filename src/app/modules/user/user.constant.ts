@@ -4,4 +4,6 @@ const USER_ROLES = {
   SUPER_ADMIN: "super_admin",
 } as const;
 
-export { USER_ROLES };
+const allowedFields = ["name", "phone", "address"] as string[];
+
+export { USER_ROLES, allowedFields };
