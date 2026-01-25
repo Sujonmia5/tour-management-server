@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import mongoose, { Schema } from "mongoose";
 import { USER_ROLES } from "./user.constant";
 import { IUserModels, TUser } from "./user.interface";
@@ -53,8 +55,9 @@ const userSchema = new Schema<TUser, IUserModels>(
       default: false,
     },
     auths: [authsSchema],
-    passwordChangeAt: {
+    passwordChangedAt: {
       type: Date,
+      default: null,
     },
     isPasswordChanged: {
       type: Boolean,
@@ -87,14 +90,23 @@ const userSchema = new Schema<TUser, IUserModels>(
 );
 
 userSchema.statics["isUserExist"] = async function (
-  email: string,
-  isDataNeed: boolean,
+  email,
+  isDataNeed = false,
+  fields = [],
 ) {
-  const user = await this.findOne({ email, isDeleted: { $ne: true } });
+  const user = await this.findOne({ email, isDeleted: { $ne: true } }).select([
+    "_id",
+    "isPasswordSet",
+    ...fields,
+  ]);
   if (isDataNeed) {
     return user;
   }
   return user ? true : false;
 };
+
+userSchema.pre(/^find/, function (this: mongoose.Query<any, TUser>) {
+  this.where({ isDeleted: { $ne: true } });
+});
 
 export const UserModel = mongoose.model<TUser, IUserModels>("User", userSchema);

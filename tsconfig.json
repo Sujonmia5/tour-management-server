@@ -1,4 +1,6 @@
 {
+  "include": ["src/**/*.ts", "src/types/**/*.d.ts"],
+  "exclude": ["node_modules"],
   "compilerOptions": {
     // File Layout
     "rootDir": "./src",
@@ -41,7 +43,5 @@
   "ts-node": {
     "esm": false,
     "experimentalSpecifierResolution": "node"
-  },
-  "include": ["src"],
-  "exclude": ["node_modules", "dist"]
+  }
 }

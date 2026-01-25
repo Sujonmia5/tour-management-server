@@ -1,13 +1,13 @@
 import { config } from "../config/config";
 import bcrypt from "bcrypt";
 
-export const HashPassword = (password: string): string => {
-  return bcrypt.hashSync(password, Number(config.PASSWORD_HASH_SALT_NUMBER));
+export const HashPassword = async (password: string): Promise<string> => {
+  return await bcrypt.hash(password, Number(config.PASSWORD_HASH_SALT_NUMBER));
 };
 
-export const ComparePassword = (
+export const ComparePassword = async (
   plainPassword: string,
   hashedPassword: string,
-): boolean => {
-  return bcrypt.compareSync(plainPassword, hashedPassword);
+): Promise<boolean> => {
+  return await bcrypt.compare(plainPassword, hashedPassword);
 };

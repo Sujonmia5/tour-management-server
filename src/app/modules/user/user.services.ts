@@ -2,6 +2,7 @@ import { TUser, TUserPasswordUpdatePayload } from "./user.interface";
 import { UserModel } from "./user.model";
 import { ComparePassword, HashPassword } from "../../utils/bcrypt";
 import { allowedFields } from "./user.constant";
+import { CreateAccessToken, CreateRefreshToken } from "../../utils/token";
 
 const createUserIntoDB = async (payload: TUser) => {
   const userPayload: Partial<TUser> = {
@@ -11,6 +12,7 @@ const createUserIntoDB = async (payload: TUser) => {
     phone: payload.phone || "",
     address: payload.address || "",
     password: "",
+    isPasswordSet: true,
     auths: [
       {
         provider: "local",
@@ -23,13 +25,26 @@ const createUserIntoDB = async (payload: TUser) => {
     throw new Error("Password is required");
   }
 
-  if (await UserModel.isUserExist(payload.email, false)) {
+  if (await UserModel.isUserExist(payload.email)) {
     throw new Error("User already exists");
   }
 
-  userPayload.password = HashPassword(payload.password as string);
+  userPayload.password = await HashPassword(payload.password as string);
 
-  return UserModel.create(userPayload);
+  const result = await UserModel.create(userPayload);
+
+  if (!result) {
+    throw new Error("Failed to create user");
+  }
+  const JwtPayload = {
+    userId: result._id,
+    email: result.email,
+    role: result.role,
+  };
+  const accessToken = CreateAccessToken(JwtPayload);
+  const refreshToken = CreateRefreshToken(JwtPayload);
+
+  return { accessToken, refreshToken };
 };
 
 // get user by email
@@ -42,7 +57,8 @@ const getUserByEmail = async (email: string) => {
 };
 
 const getAllUsersFromDB = async () => {
-  return UserModel.find({ isDeleted: false });
+  const result = await UserModel.find({ isDeleted: false });
+  return result;
 };
 
 //when user login then change password
@@ -65,7 +81,7 @@ const changeUserPassword = async (
       { email },
       {
         password: hashedPassword,
-        passwordChangeAt: new Date(),
+        passwordChangedAt: new Date(),
         isPasswordChanged: true,
         isPasswordSet: true,
       },
@@ -82,19 +98,19 @@ const changeUserPassword = async (
     throw new Error("Old password is incorrect");
   }
 
-  const hassPassword = HashPassword(payload.newPassword as string);
+  const hassPassword = await HashPassword(payload.newPassword as string);
   if (!hassPassword) {
     throw new Error("Failed to hash password");
   }
-  await UserModel.updateOne(
-    { email },
-    {
-      password: hassPassword,
-      passwordChangeAt: new Date(),
-      isPasswordChanged: true,
-      isPasswordSet: true,
-    },
-  );
+  const result = await UserModel.findByIdAndUpdate(isUserExist._id, {
+    password: hassPassword,
+    passwordChangedAt: new Date(),
+    isPasswordChanged: true,
+    isPasswordSet: true,
+  });
+  if (!result) {
+    throw new Error("Failed to change password");
+  }
   return null;
 };
 // update user info

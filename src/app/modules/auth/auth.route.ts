@@ -7,10 +7,7 @@ const route: Router = Router();
 
 route.get("/google", AuthController.googleAuth);
 
-// route.get(
-//   "/google/callback",
-//   AuthController.googleAuthCallback,
-// );
+route.get("/google/callback", AuthController.googleAuthCallback);
 
 route.post("/login", ValidationCheck(LoginZodSchema), AuthController.login);
 route.post("/register", AuthController.register);

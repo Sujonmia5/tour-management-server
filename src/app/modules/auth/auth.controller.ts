@@ -62,10 +62,43 @@ const login = CatchAsync(
 // login controller using passport google strategy
 const googleAuth = CatchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
+    const redirect = req.query["redirect"] || "/";
     passport.authenticate("google", {
       scope: ["profile", "email"],
       session: false,
+      state: redirect as string,
     })(req, res, next);
+  },
+);
+
+// google auth callback controller
+const googleAuthCallback = CatchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    passport.authenticate(
+      "google",
+      { session: false },
+      async (err: any, user: Partial<TUser>, _info: any) => {
+        if (err) {
+          return res.status(401).json({
+            success: false,
+            message: "Authentication failed",
+            error: err,
+          });
+        }
+        if (!user) {
+          return res.status(401).json({
+            success: false,
+            message: "Google authentication failed",
+          });
+        }
+        const result = await AuthServices.loginUser(user);
+
+        setCookies(res, result);
+
+        const redirectUrl = req.query["state"] || "/";
+        return res.redirect(redirectUrl as string);
+      },
+    )(req, res, next);
   },
 );
 
@@ -95,4 +128,5 @@ export const AuthController = {
   login,
   googleAuth,
   refreshToken,
+  googleAuthCallback,
 };

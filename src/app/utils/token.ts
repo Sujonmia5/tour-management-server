@@ -1,13 +1,13 @@
-import JWT from "jsonwebtoken";
+import JWT, { JwtPayload } from "jsonwebtoken";
 import { config } from "../config/config";
 
-type JWTPayload = {
+export interface TUserJwtPayload extends JwtPayload {
   userId: string;
   email: string;
   role: string;
-};
+}
 
-export const CreateAccessToken = (payload: JWTPayload): string => {
+export const CreateAccessToken = (payload: TUserJwtPayload): string => {
   return JWT.sign(
     payload,
     config.JWT_ACCESSTOKEN_SECRET as string,
@@ -17,7 +17,7 @@ export const CreateAccessToken = (payload: JWTPayload): string => {
   );
 };
 
-export const CreateRefreshToken = (payload: JWTPayload): string => {
+export const CreateRefreshToken = (payload: TUserJwtPayload): string => {
   return JWT.sign(
     payload,
     config.JWT_REFRESHTOKEN_SECRET as string,

@@ -2,9 +2,12 @@ import status from "http-status";
 import { CatchAsync } from "../../utils/CatchAsync";
 import { SendResponse } from "../../utils/sendResponse";
 import UserServices from "./user.services";
+import { setCookies } from "../../utils/setCookies";
 
 const createUser = CatchAsync(async (req, res) => {
   const result = await UserServices.createUserIntoDB(req.body);
+  setCookies(res, result);
+
   SendResponse(res, {
     statusCode: status.CREATED,
     success: true,
@@ -38,7 +41,7 @@ const getUserByEmail = CatchAsync(async (req, res) => {
 });
 
 const updateUser = CatchAsync(async (req, res) => {
-  const email = req?.user?.email;
+  const email = (req.user as { email?: string } | undefined)?.email;
   if (!email) {
     throw new Error("User not authenticated");
   }
@@ -53,7 +56,11 @@ const updateUser = CatchAsync(async (req, res) => {
 });
 
 const changeUserPassword = CatchAsync(async (req, res) => {
-  const email = req?.user?.email as string;
+  const email = (req.user as { email?: string } | undefined)?.email;
+  if (!email) {
+    throw new Error("User not authenticated");
+  }
+
   const result = await UserServices.changeUserPassword(email, req.body);
   SendResponse(res, {
     statusCode: status.OK,

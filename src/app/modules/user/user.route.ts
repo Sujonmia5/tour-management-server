@@ -2,6 +2,8 @@ import { Router } from "express";
 import { UserContrller } from "./user.controller";
 import { ValidationCheck } from "../../middleware/ValidationCheck";
 import { createUserZodSchema } from "./user.validation";
+import AuthCheck from "../../middleware/AuthCheck";
+import { USER_ROLES } from "./user.constant";
 
 const route: Router = Router();
 
@@ -10,9 +12,19 @@ route.post(
   ValidationCheck(createUserZodSchema),
   UserContrller.createUser,
 );
-route.get("/", UserContrller.getAllUsers);
+route.get(
+  "/",
+  AuthCheck(USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN, USER_ROLES.USER),
+  UserContrller.getAllUsers,
+);
 route.patch("/update-user", UserContrller.updateUser);
-route.patch("/change-user-password", UserContrller.changeUserPassword);
+
+route.patch(
+  "/change-user-password",
+  AuthCheck(USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN, USER_ROLES.USER),
+  UserContrller.changeUserPassword,
+);
+
 route.get("/:email", UserContrller.getUserByEmail);
 
 export const UserRoute = route;

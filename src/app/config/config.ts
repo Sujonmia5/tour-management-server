@@ -16,6 +16,9 @@ const loadConfig = (): IConfig => {
     "JWT_ACCESSTOKEN_EXPIRES_IN",
     "JWT_REFRESHTOKEN_SECRET",
     "JWT_REFRESHTOKEN_EXPIRES_IN",
+    "GOOGLE_OAUTH_CLIENT_ID",
+    "GOOGLE_OAUTH_CLIENT_SECRET",
+    "GOOGLE_OAUTH_CALLBACK_URL",
   ];
   envVariables.forEach((variable) => {
     if (!process.env[variable]) {

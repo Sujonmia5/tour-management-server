@@ -23,7 +23,7 @@ export type TUser = {
       providerId: string;
     },
   ];
-  passwordChangeAt?: Date;
+  passwordChangedAt?: Date;
   isPasswordChanged: boolean;
   isPasswordSet: boolean;
   avatarUrl?: string;
@@ -35,11 +35,13 @@ export type TUserPasswordUpdatePayload = {
   newPassword: string;
   oldPassword?: string;
 };
+type TAllowedFields = keyof Omit<TUser, "_id" | "password" | "auths">;
 
 // user Methods
 export interface IUserModels extends mongoose.Model<TUser> {
   isUserExist(
     email: string,
-    isDataNeed: boolean,
+    isDataNeed?: boolean,
+    fields?: TAllowedFields[],
   ): Promise<Pick<TUser, "_id" | "isPasswordSet"> | boolean>;
 }
