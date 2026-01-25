@@ -98,7 +98,7 @@ const changeUserPassword = async (
     throw new Error("Old password is incorrect");
   }
 
-  const hassPassword = await HashPassword(payload.newPassword as string);
+  const hassPassword = HashPassword(payload.newPassword as string);
   if (!hassPassword) {
     throw new Error("Failed to hash password");
   }
