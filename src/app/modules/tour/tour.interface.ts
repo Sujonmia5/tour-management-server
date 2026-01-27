@@ -1,24 +1,21 @@
-import { TOUR_TYPES, TOUR_STATUS } from "./tour.constant";
-
-export type TTourType = (typeof TOUR_TYPES)[keyof typeof TOUR_TYPES];
-
-export type TTourStatus = (typeof TOUR_STATUS)[keyof typeof TOUR_STATUS];
+import { Schema } from "mongoose";
 
 export type TTour = {
-  _id: string;
+  _id?: Schema.Types.ObjectId;
+  slug: string;
   title: string;
   description: string;
-  type: TTourType;
-  price: number;
-  duration: number; // in days
+  images?: string[];
   location: string;
-  status: TTourStatus;
-  maxParticipants: number;
-  currentParticipants: number;
-  startDate: string;
-  endDate: string;
-  images: string[];
-  isDeleted: boolean;
-  createdAt: string;
-  updatedAt: string;
+  costFrom: number;
+  startDate: string | Date;
+  endDate: string | Date;
+  tourType: Schema.Types.ObjectId;
+  included?: string[];
+  excluded?: string[];
+  amenities?: string[];
+  tourPlan?: string[];
+  isDeleted?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 };

@@ -1,26 +1,71 @@
 import mongoose, { Schema } from "mongoose";
-import { TOUR_TYPES, TOUR_STATUS } from "./tour.constant";
 import { TTour } from "./tour.interface";
 
 const tourSchema = new Schema<TTour>(
   {
-    title: { type: String, required: true },
-    description: { type: String, required: true },
-    type: { type: String, enum: Object.values(TOUR_TYPES), required: true },
-    price: { type: Number, required: true },
-    duration: { type: Number, required: true },
-    location: { type: String, required: true },
-    status: {
+    slug: {
       type: String,
-      enum: Object.values(TOUR_STATUS),
-      default: TOUR_STATUS.ACTIVE,
+      required: true,
+      unique: true,
     },
-    maxParticipants: { type: Number, required: true },
-    currentParticipants: { type: Number, default: 0 },
-    startDate: { type: String, required: true },
-    endDate: { type: String, required: true },
-    images: [{ type: String }],
-    isDeleted: { type: Boolean, default: false },
+    title: {
+      type: String,
+      required: true,
+    },
+    description: {
+      type: String,
+      required: true,
+    },
+    images: [
+      {
+        type: String,
+      },
+    ],
+    location: {
+      type: String,
+      required: true,
+    },
+    costFrom: {
+      type: Number,
+      required: true,
+    },
+    startDate: {
+      type: Date,
+      required: true,
+    },
+    endDate: {
+      type: Date,
+      required: true,
+    },
+    tourType: {
+      type: Schema.Types.ObjectId,
+      ref: "TourType",
+      required: true,
+    },
+    included: [
+      {
+        type: String,
+      },
+    ],
+    excluded: [
+      {
+        type: String,
+      },
+    ],
+    amenities: [
+      {
+        type: String,
+      },
+    ],
+    tourPlan: [
+      {
+        type: String,
+      },
+    ],
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

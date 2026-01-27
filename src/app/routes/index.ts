@@ -1,6 +1,7 @@
 import express, { Router } from "express";
 import { UserRoute } from "../modules/user/user.route";
 import { AuthRoute } from "../modules/auth/auth.route";
+import { TourTypeRoute } from "../modules/tourType/tourType.route";
 
 interface IRoute {
   path: string;
@@ -17,6 +18,10 @@ const moduleRoutes: IRoute[] = [
   {
     path: "/users",
     route: UserRoute,
+  },
+  {
+    path: "/tour-types",
+    route: TourTypeRoute,
   },
   // {
   //   path: "/tours",
