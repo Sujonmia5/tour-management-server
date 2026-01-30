@@ -5,10 +5,8 @@ const castErrorHandler = (error: CastError): IErrorResponse => {
   return {
     statusCode: 400,
     success: false,
-    message: `Invalid ${error.path}: ${error.value}`,
-    errorSource: [
-      { path: error.path, message: `Invalid ${error.path}: ${error.value}` },
-    ],
+    message: `Invalid ${error.path}`,
+    errorSource: [{ path: error.path, message: `Invalid ${error.path}` }],
   };
 };
 

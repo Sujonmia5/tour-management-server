@@ -7,25 +7,9 @@ import { CatchAsync } from "../../utils/CatchAsync";
 import { TUser } from "../user/user.interface";
 import passport from "passport";
 import { setCookies } from "../../utils/setCookies";
+import { SendResponse } from "../../utils/sendResponse";
+import status from "http-status";
 
-const register = async (_req: Request, res: Response) => {
-  try {
-    // const result = await AuthServices.registerUser(req.body);
-    res.status(201).json({
-      success: true,
-      message: "User registered successfully",
-      // data: result,
-    });
-  } catch (error: unknown) {
-    const message =
-      error instanceof Error ? error.message : "Registration failed";
-    res.status(400).json({
-      success: false,
-      message,
-      error,
-    });
-  }
-};
 //  login controller using passport local strategy
 const login = CatchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -102,31 +86,36 @@ const googleAuthCallback = CatchAsync(
   },
 );
 
+const changeUserPassword = CatchAsync(async (req, res) => {
+  const email = (req.user as { email: string })?.email;
+
+  const result = await AuthServices.changeUserPassword(email, req.body);
+  SendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: "Password changed successfully",
+    data: result,
+  });
+});
+
 //
-const refreshToken = async (_req: Request, res: Response) => {
-  try {
-    // const { refreshToken } = req.body;
-    // const result = await AuthServices.refreshAccessToken(refreshToken);
-    res.status(200).json({
-      success: true,
-      message: "Token refreshed successfully",
-      // data: result,
-    });
-  } catch (error: unknown) {
-    const message =
-      error instanceof Error ? error.message : "Token refresh failed";
-    res.status(401).json({
-      success: false,
-      message,
-      error,
-    });
-  }
-};
+const refreshToken = CatchAsync(async (req: Request, res: Response) => {
+  const email = (req.user as { email: string })?.email;
+
+  const result = await AuthServices.refreshAccessToken(email);
+  setCookies(res, result);
+  SendResponse(res, {
+    success: true,
+    statusCode: status.OK,
+    message: "Token refreshed successfully",
+    data: result,
+  });
+});
 
 export const AuthController = {
-  register,
   login,
   googleAuth,
   refreshToken,
   googleAuthCallback,
+  changeUserPassword,
 };

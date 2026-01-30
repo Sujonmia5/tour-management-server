@@ -1,8 +1,8 @@
 import { Response } from "express";
 import { config } from "../config/config";
-interface IToken {
-  accessToken: string;
-  refreshToken: string;
+export interface IToken {
+  accessToken?: string;
+  refreshToken?: string;
 }
 
 export const setCookies = (res: Response, token: IToken) => {

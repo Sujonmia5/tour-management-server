@@ -12,7 +12,7 @@ const globalErrorHandler: ErrorRequestHandler = (err, _req, res, _neßßßxt) =>
   let statusCode = 500;
   let message = "Internal Server Error";
   let errorSource = null;
-
+  console.log(err);
   if (err instanceof AppError) {
     statusCode = err.statusCode;
     message = err.message;

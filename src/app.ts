@@ -7,6 +7,7 @@ import session from "express-session";
 import { config } from "./app/config/config";
 import globalErrorHandler from "./app/middleware/globalErrorHandler";
 import notFoundHandler from "./app/middleware/notFound";
+import cookieParser from "cookie-parser";
 
 const app: Application = express();
 
@@ -21,6 +22,7 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.json());
+app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors({ origin: "*" }));
 

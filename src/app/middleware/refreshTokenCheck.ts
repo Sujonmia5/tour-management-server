@@ -7,11 +7,11 @@ import { TUserJwtPayload } from "../utils/token";
 import { UserModel } from "../modules/user/user.model";
 import AppError from "../Error/AppError";
 import status from "http-status";
-const AuthCheck = (...role: TUserRole[]) => {
+
+const refreshCheck = (...role: TUserRole[]) => {
   return CatchAsync(
     async (req: Request, _res: Response, next: NextFunction) => {
-      const token = req.headers.authorization;
-      // token missing check
+      const token = req.cookies["refreshToken"];
       if (!token) {
         throw new AppError(
           status.UNAUTHORIZED,
@@ -21,7 +21,7 @@ const AuthCheck = (...role: TUserRole[]) => {
       // verify token
       const decode = jwt.verify(
         token,
-        config.JWT_ACCESSTOKEN_SECRET as string,
+        config.JWT_REFRESHTOKEN_SECRET as string,
       ) as TUserJwtPayload;
 
       // role check
@@ -58,4 +58,4 @@ const AuthCheck = (...role: TUserRole[]) => {
     },
   );
 };
-export default AuthCheck;
+export default refreshCheck;

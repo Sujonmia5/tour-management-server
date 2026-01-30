@@ -1,6 +1,7 @@
 const USER_ROLES = {
-  ADMIN: "admin",
   USER: "user",
+  GUIDE: "guide",
+  ADMIN: "admin",
   SUPER_ADMIN: "super_admin",
 } as const;
 

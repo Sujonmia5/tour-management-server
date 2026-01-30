@@ -8,7 +8,7 @@ import { USER_ROLES } from "../user/user.constant";
 const route: Router = Router();
 
 route.post(
-  "/",
+  "/create",
   AuthCheck(USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN),
   ValidationCheck(createTourTypeZodSchema),
   TourTypeController.createTourType,

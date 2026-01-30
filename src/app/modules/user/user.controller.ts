@@ -28,9 +28,6 @@ const getAllUsers = CatchAsync(async (_req, res) => {
 
 const getUserByEmail = CatchAsync(async (req, res) => {
   const email = req?.params["email"] as string;
-  if (!email) {
-    throw new Error("Email is required");
-  }
   const result = await UserServices.getUserByEmail(email);
   SendResponse(res, {
     statusCode: status.OK,
@@ -41,10 +38,8 @@ const getUserByEmail = CatchAsync(async (req, res) => {
 });
 
 const updateUser = CatchAsync(async (req, res) => {
-  const email = (req.user as { email?: string } | undefined)?.email;
-  if (!email) {
-    throw new Error("User not authenticated");
-  }
+  const email = (req.user as { email: string }).email;
+
   const updateData = req.body;
   const result = await UserServices.updateUserIntoDB(email, updateData);
   SendResponse(res, {
@@ -55,25 +50,9 @@ const updateUser = CatchAsync(async (req, res) => {
   });
 });
 
-const changeUserPassword = CatchAsync(async (req, res) => {
-  const email = (req.user as { email?: string } | undefined)?.email;
-  if (!email) {
-    throw new Error("User not authenticated");
-  }
-
-  const result = await UserServices.changeUserPassword(email, req.body);
-  SendResponse(res, {
-    statusCode: status.OK,
-    success: true,
-    message: "Password changed successfully",
-    data: result,
-  });
-});
-
 export const UserContrller = {
   createUser,
   getAllUsers,
   getUserByEmail,
   updateUser,
-  changeUserPassword,
 };

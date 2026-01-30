@@ -1,8 +1,10 @@
-import { TUser, TUserPasswordUpdatePayload } from "./user.interface";
+import { TUser } from "./user.interface";
 import { UserModel } from "./user.model";
-import { ComparePassword, HashPassword } from "../../utils/bcrypt";
+import { HashPassword } from "../../utils/bcrypt";
 import { allowedFields } from "./user.constant";
 import { CreateAccessToken, CreateRefreshToken } from "../../utils/token";
+import AppError from "../../Error/AppError";
+import status from "http-status";
 
 const createUserIntoDB = async (payload: TUser) => {
   const userPayload: Partial<TUser> = {
@@ -21,12 +23,8 @@ const createUserIntoDB = async (payload: TUser) => {
     ],
   };
 
-  if (!payload.password) {
-    throw new Error("Password is required");
-  }
-
   if (await UserModel.isUserExist(payload.email)) {
-    throw new Error("User already exists");
+    throw new AppError(status.CONFLICT, "User already exists");
   }
 
   userPayload.password = await HashPassword(payload.password as string);
@@ -34,7 +32,7 @@ const createUserIntoDB = async (payload: TUser) => {
   const result = await UserModel.create(userPayload);
 
   if (!result) {
-    throw new Error("Failed to create user");
+    throw new AppError(status.INTERNAL_SERVER_ERROR, "Failed to create user");
   }
   const JwtPayload = {
     userId: result._id,
@@ -51,7 +49,7 @@ const createUserIntoDB = async (payload: TUser) => {
 const getUserByEmail = async (email: string) => {
   const result = await UserModel.findOne({ email });
   if (!result) {
-    throw new Error("User does not exist");
+    throw new AppError(status.NOT_FOUND, "User does not exist");
   }
   return result;
 };
@@ -61,58 +59,6 @@ const getAllUsersFromDB = async () => {
   return result;
 };
 
-//when user login then change password
-const changeUserPassword = async (
-  email: string,
-  payload: TUserPasswordUpdatePayload,
-) => {
-  const isUserExist = await UserModel.findOne({ email });
-  if (!isUserExist) {
-    throw new Error("User does not exist");
-  }
-
-  // password set na thakle old password check korbo na
-  if (!isUserExist.isPasswordSet) {
-    const hashedPassword = HashPassword(payload.newPassword as string);
-    if (!hashedPassword) {
-      throw new Error("Failed to hash password");
-    }
-    await UserModel.updateOne(
-      { email },
-      {
-        password: hashedPassword,
-        passwordChangedAt: new Date(),
-        isPasswordChanged: true,
-        isPasswordSet: true,
-      },
-    );
-    return null;
-  }
-
-  if (
-    !ComparePassword(
-      payload.oldPassword as string,
-      isUserExist.password as string,
-    )
-  ) {
-    throw new Error("Old password is incorrect");
-  }
-
-  const hassPassword = HashPassword(payload.newPassword as string);
-  if (!hassPassword) {
-    throw new Error("Failed to hash password");
-  }
-  const result = await UserModel.findByIdAndUpdate(isUserExist._id, {
-    password: hassPassword,
-    passwordChangedAt: new Date(),
-    isPasswordChanged: true,
-    isPasswordSet: true,
-  });
-  if (!result) {
-    throw new Error("Failed to change password");
-  }
-  return null;
-};
 // update user info
 const updateUserIntoDB = async (email: string, updateData: Partial<TUser>) => {
   const updateInfo = Object.fromEntries(
@@ -121,10 +67,10 @@ const updateUserIntoDB = async (email: string, updateData: Partial<TUser>) => {
 
   const isUserExist = (await UserModel.isUserExist(email, true)) as TUser;
   if (!isUserExist) {
-    throw new Error("User does not exist");
+    throw new AppError(status.NOT_FOUND, "User does not exist");
   }
   if (!isUserExist.isActive) {
-    throw new Error("User is not active");
+    throw new AppError(status.FORBIDDEN, "User is not active");
   }
 
   return UserModel.findOneAndUpdate({ email }, updateInfo, {
@@ -136,7 +82,6 @@ const updateUserIntoDB = async (email: string, updateData: Partial<TUser>) => {
 const UserServices = {
   createUserIntoDB,
   getUserByEmail,
-  changeUserPassword,
   updateUserIntoDB,
   getAllUsersFromDB,
 };

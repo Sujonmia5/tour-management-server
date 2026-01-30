@@ -1,46 +1,9 @@
-import { TUser } from "../user/user.interface";
+import { TUser, TUserPasswordUpdatePayload } from "../user/user.interface";
 import { CreateAccessToken, CreateRefreshToken } from "../../utils/token";
-
-// const registerUser = async (
-//   payload: TRegisterRequest,
-// ): Promise<TAuthResponse> => {
-//   const { name, email, password, phone, address } = payload;
-
-//   // Check if user already exists
-//   const existingUser = await UserModel.findOne({ email });
-//   if (existingUser) {
-//     throw new Error("User already exists");
-//   }
-
-//   // Hash password
-//   const hashedPassword = await bcrypt.hash(password, 10);
-
-//   // Create user
-//   const userData: Record<string, any> = {
-//     name,
-//     email,
-//     password: hashedPassword,
-//     role: "user",
-//     isDeleted: false,
-//     isActive: true,
-//     isVerified: false,
-//     auths: [{ provider: "local", providerId: email }],
-//     isPasswordChanged: false,
-//     isPasswordSet: true,
-//   };
-
-//   if (phone) userData["phone"] = phone;
-//   if (address) userData["address"] = address;
-
-//   const user = await UserModel.create(userData);
-
-//   return {
-//     _id: user._id.toString(),
-//     name: user.name,
-//     email: user.email,
-//     role: user.role,
-//   };
-// };
+import { UserModel } from "../user/user.model";
+import { ComparePassword, HashPassword } from "../../utils/bcrypt";
+import AppError from "../../Error/AppError";
+import status from "http-status";
 
 const loginUser = async (user: Partial<TUser>) => {
   const tokenPayload = {
@@ -56,33 +19,80 @@ const loginUser = async (user: Partial<TUser>) => {
   };
 };
 
-// const refreshAccessToken = async (
-//   refreshToken: string,
-// ): Promise<{ accessToken: string }> => {
-//   try {
-//     const decoded = jwt.verify(refreshToken, JWT_REFRESH_SECRET as string) as {
-//       userId: string;
-//     };
+//when user login then change password
+const changeUserPassword = async (
+  email: string,
+  payload: TUserPasswordUpdatePayload,
+) => {
+  const isUserExist = await UserModel.findOne({ email });
+  if (!isUserExist) {
+    throw new AppError(status.NOT_FOUND, "User does not exist");
+  }
 
-//     const user = await UserModel.findById(decoded.userId);
-//     if (!user) {
-//       throw new Error("User not found");
-//     }
+  // password set na thakle old password check korbo na
+  if (!isUserExist.isPasswordSet) {
+    const hashedPassword = await HashPassword(payload.newPassword as string);
+    if (!hashedPassword) {
+      throw new AppError(status.BAD_REQUEST, "Failed to hash password");
+    }
+    await UserModel.updateOne(
+      { email },
+      {
+        password: hashedPassword,
+        passwordChangedAt: new Date(),
+        isPasswordChanged: true,
+        isPasswordSet: true,
+      },
+    );
+    return null;
+  }
 
-//     const accessToken = jwt.sign(
-//       { userId: user._id, email: user.email, role: user.role },
-//       JWT_ACCESS_SECRET as string,
-//       { expiresIn: JWT_ACCESS_EXPIRES_IN as string },
-//     );
+  if (
+    !(await ComparePassword(
+      payload.oldPassword as string,
+      isUserExist.password as string,
+    ))
+  ) {
+    throw new AppError(status.BAD_REQUEST, "Old password is incorrect");
+  }
 
-//     return { accessToken };
-//   } catch {
-//     throw new Error("Invalid refresh token");
-//   }
-// };
+  const hassPassword = HashPassword(payload.newPassword as string);
+  if (!hassPassword) {
+    throw new AppError(status.BAD_REQUEST, "Failed to hash password");
+  }
+  const result = await UserModel.findByIdAndUpdate(isUserExist._id, {
+    password: hassPassword,
+    passwordChangedAt: new Date(),
+    isPasswordChanged: true,
+    isPasswordSet: true,
+  });
+  if (!result) {
+    throw new AppError(status.BAD_REQUEST, "Failed to change password");
+  }
+  return null;
+};
+
+const refreshAccessToken = async (
+  email: string,
+): Promise<{ accessToken: string }> => {
+  const isUserExist = await UserModel.findOne({ email });
+
+  if (!isUserExist) {
+    throw new AppError(status.NOT_FOUND, "user not Founded");
+  }
+  const JwtPayload = {
+    userId: isUserExist._id!.toString(),
+    email: isUserExist.email,
+    role: isUserExist.role,
+  };
+
+  const accessToken = CreateAccessToken(JwtPayload);
+  return { accessToken };
+};
 
 export const AuthServices = {
   // registerUser,
   loginUser,
-  // refreshAccessToken,
+  changeUserPassword,
+  refreshAccessToken,
 };

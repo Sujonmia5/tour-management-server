@@ -1,9 +1,11 @@
+import status from "http-status";
+import AppError from "../../Error/AppError";
 import { TourTypeModel } from "./tourType.model";
 
 const createTourTypeIntoDB = async (payload: { name: string }) => {
   const exists = await TourTypeModel.findOne({ name: payload.name });
   if (exists) {
-    throw new Error("Tour type already exists");
+    throw new AppError(status.CONFLICT, "Tour type already exists");
   }
   const result = await TourTypeModel.create({ name: payload.name });
   return result;
@@ -15,7 +17,8 @@ const getAllTourTypesFromDB = async () => {
 
 const getTourTypeByIdFromDB = async (id: string) => {
   const result = await TourTypeModel.findById(id);
-  if (!result || result.isDeleted) throw new Error("Tour type not found");
+  if (!result || result.isDeleted)
+    throw new AppError(status.NOT_FOUND, "Tour type not found");
   return result;
 };
 
@@ -27,7 +30,8 @@ const updateTourTypeIntoDB = async (
     new: true,
     runValidators: true,
   });
-  if (!result) throw new Error("Failed to update tour type");
+  if (!result)
+    throw new AppError(status.BAD_REQUEST, "Failed to update tour type");
   return result;
 };
 
@@ -37,7 +41,8 @@ const deleteTourTypeFromDB = async (id: string) => {
     { isDeleted: true },
     { new: true },
   );
-  if (!result) throw new Error("Failed to delete tour type");
+  if (!result)
+    throw new AppError(status.BAD_REQUEST, "Failed to delete tour type");
   return null;
 };
 

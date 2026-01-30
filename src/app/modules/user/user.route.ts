@@ -14,17 +14,19 @@ route.post(
 );
 route.get(
   "/",
-  AuthCheck(USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN, USER_ROLES.USER),
+  AuthCheck(USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN),
   UserContrller.getAllUsers,
 );
-route.patch("/update-user", UserContrller.updateUser);
-
 route.patch(
-  "/change-user-password",
-  AuthCheck(USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN, USER_ROLES.USER),
-  UserContrller.changeUserPassword,
+  "/update-user",
+  AuthCheck(...Object.values(USER_ROLES)),
+  UserContrller.updateUser,
 );
 
-route.get("/:email", UserContrller.getUserByEmail);
+route.get(
+  "/:email",
+  AuthCheck(...Object.values(USER_ROLES)),
+  UserContrller.getUserByEmail,
+);
 
 export const UserRoute = route;

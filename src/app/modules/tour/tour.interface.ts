@@ -10,7 +10,9 @@ export type TTour = {
   costFrom: number;
   startDate: string | Date;
   endDate: string | Date;
+  division: Schema.Types.ObjectId;
   tourType: Schema.Types.ObjectId;
+  guide: string[];
   included?: string[];
   excluded?: string[];
   amenities?: string[];
