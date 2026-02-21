@@ -2,6 +2,8 @@ import express, { Router } from "express";
 import { UserRoute } from "../modules/user/user.route";
 import { AuthRoute } from "../modules/auth/auth.route";
 import { TourTypeRoute } from "../modules/tourType/tourType.route";
+import { DivisionRoute } from "../modules/division/division.route";
+import { TourRoute } from "../modules/tour/tour.route";
 
 interface IRoute {
   path: string;
@@ -23,10 +25,14 @@ const moduleRoutes: IRoute[] = [
     path: "/tour-types",
     route: TourTypeRoute,
   },
-  // {
-  //   path: "/tours",
-  //   route: TourRoute,
-  // },
+  {
+    path: "/division",
+    route: DivisionRoute,
+  },
+  {
+    path: "/tours",
+    route: TourRoute,
+  },
   // {
   //   path: "/payments",
   //   route: PaymentRoute,

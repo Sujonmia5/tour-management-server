@@ -2,11 +2,10 @@ import { IErrorResponse } from "../interface/Error";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const handleDuplicateFieldError = (error: any): IErrorResponse => {
-  const value = error.keyValue
-    ? JSON.stringify(error.keyValue)
-    : "Duplicate field value";
+  const field = Object.keys(error.keyValue)[0] as string;
+  const value = error.keyValue[field];
 
-  const message = `Duplicate field value: ${value}. Please use another value!`;
+  const message = `Duplicate ${field} value: ${value}. Please use another value!`;
 
   return {
     statusCode: 400,

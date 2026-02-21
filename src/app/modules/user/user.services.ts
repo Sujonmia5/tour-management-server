@@ -45,6 +45,19 @@ const createUserIntoDB = async (payload: TUser) => {
   return { accessToken, refreshToken };
 };
 
+const createGuideIntoDB = async (payload: TUser) => {
+  const guideInfo = { ...payload };
+  guideInfo.role = "guide";
+
+  const isUserExist = await UserModel.isUserExist(guideInfo.email);
+  if (isUserExist) {
+    throw new AppError(status.CONFLICT, "User is already Exist");
+  }
+
+  const result = await UserModel.create(guideInfo);
+  return result;
+};
+
 // get user by email
 const getUserByEmail = async (email: string) => {
   const result = await UserModel.findOne({ email });
@@ -84,6 +97,7 @@ const UserServices = {
   getUserByEmail,
   updateUserIntoDB,
   getAllUsersFromDB,
+  createGuideIntoDB,
 };
 
 export default UserServices;

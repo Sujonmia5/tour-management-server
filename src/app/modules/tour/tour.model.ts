@@ -73,4 +73,15 @@ const tourSchema = new Schema<TTour>(
   },
 );
 
+tourSchema.pre("validate", async function () {
+  if ((!this.slug && this.slug === "") || this.title) {
+    const base = this.title
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, "-")
+      .replace(/[^a-z0-9-]/g, "");
+    this.slug = base;
+  }
+});
+
 export const TourModel = mongoose.model<TTour>("Tour", tourSchema);

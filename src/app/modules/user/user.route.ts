@@ -12,6 +12,14 @@ route.post(
   ValidationCheck(createUserZodSchema),
   UserContrller.createUser,
 );
+
+route.post(
+  "/create-guide",
+  AuthCheck(USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN),
+  ValidationCheck(createUserZodSchema),
+  UserContrller.createUser,
+);
+
 route.get(
   "/",
   AuthCheck(USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN),
@@ -25,7 +33,7 @@ route.patch(
 
 route.get(
   "/:email",
-  AuthCheck(...Object.values(USER_ROLES)),
+  AuthCheck(USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN, USER_ROLES.GUIDE),
   UserContrller.getUserByEmail,
 );
 

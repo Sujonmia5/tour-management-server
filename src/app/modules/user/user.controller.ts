@@ -15,6 +15,16 @@ const createUser = CatchAsync(async (req, res) => {
     data: result,
   });
 });
+const createGuide = CatchAsync(async (req, res) => {
+  const result = await UserServices.createGuideIntoDB(req.body);
+
+  SendResponse(res, {
+    statusCode: status.CREATED,
+    success: true,
+    message: "User created successfully",
+    data: result,
+  });
+});
 
 const getAllUsers = CatchAsync(async (_req, res) => {
   const result = await UserServices.getAllUsersFromDB();
@@ -55,4 +65,5 @@ export const UserContrller = {
   getAllUsers,
   getUserByEmail,
   updateUser,
+  createGuide,
 };

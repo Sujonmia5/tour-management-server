@@ -14,6 +14,7 @@ route.post(
   TourTypeController.createTourType,
 );
 route.get("/", TourTypeController.getAllTourTypes);
+
 route.get(
   "/:Id",
   AuthCheck(USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN),
